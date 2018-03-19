@@ -32,6 +32,8 @@ private:
     float max,pre_max;
     //数据集的最小值
     float min,pre_min;
+    //数据集值之和
+    double sum;
 
 public:
     //构造函数
@@ -54,6 +56,12 @@ public:
 
     //重置
     void reset();
+
+    //读取最大值
+    float get_max();
+
+    //读取最小值
+    float get_min();
 };
 
 /**
@@ -91,12 +99,15 @@ bool PACA_PCH::push_point(float f) {
     min = min < f ? min : f;
     if(max - min <= 2 * error_tolerance) {
         points.push_back(f);
+        sum += f;
         pre_max = max;
         pre_min = min;
         paca_pch_data.counter += 1;
         return true;
     }
-    paca_pch_data.value = (pre_min + pre_max) / 2;
+    max = pre_max;
+    min = pre_min;
+    paca_pch_data.value = sum / paca_pch_data.counter;
     return false;
 }
 
@@ -107,6 +118,7 @@ bool PACA_PCH::push_point(float f) {
 void PACA_PCH::start(float f) {
     max = pre_max = f;
     min = pre_max = f;
+    sum = 0.0;
     points.clear();
     points.push_back(f);
     paca_pch_data.counter = 1;
@@ -126,6 +138,22 @@ std::vector<float> PACA_PCH::get_points() {
 void PACA_PCH::reset() {
     points.clear();
     paca_pch_data.counter = 0;
+}
+
+/**
+ * 读取最大值
+ * @return
+ */
+float PACA_PCH::get_max() {
+    return max;
+}
+
+/**
+ * 读取最小值
+ * @return
+ */
+float PACA_PCH::get_min() {
+    return min;
 }
 
 #endif //APCA_PCH_APCA_H
